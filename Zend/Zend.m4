@@ -263,7 +263,7 @@ typedef union _mm_align_test {
 
 int main()
 {
-  int i = ZEND_MM_ALIGNMENT;
+  int i = ZEND_MM_ALIGNMENT < 4 ? 4 : ZEND_MM_ALIGNMENT;
   int zeros = 0;
   FILE *fp;
 
@@ -273,7 +273,7 @@ int main()
   }
 
   fp = fopen("conftest.zend", "w");
-  fprintf(fp, "%d %d\n", ZEND_MM_ALIGNMENT, zeros);  
+  fprintf(fp, "%d %d\n", ZEND_MM_ALIGNMENT < 4 ? 4 : ZEND_MM_ALIGNMENT, zeros);  
   fclose(fp);
 
   exit(0);
