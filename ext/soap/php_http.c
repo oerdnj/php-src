@@ -960,7 +960,7 @@ try_again:
 		}
 
 		end_pos = strstr(cookie_itt,"\r\n");
-		cookie = get_http_header_value(cookie_itt,"Set-Cookie: ");
+		cookie = get_http_header_value(cookie_itt,"Set-Cookie:");
 
 		eqpos = strstr(cookie, "=");
 		sempos = strstr(cookie, ";");
@@ -1026,7 +1026,7 @@ try_again:
 	if (http_1_1) {
 		http_close = FALSE;
 		if (use_proxy && !use_ssl) {
-			connection = get_http_header_value(http_headers,"Proxy-Connection: ");
+			connection = get_http_header_value(http_headers,"Proxy-Connection:");
 			if (connection) {
 				if (strncasecmp(connection, "close", sizeof("close")-1) == 0) {
 					http_close = TRUE;
@@ -1035,7 +1035,7 @@ try_again:
 			}
 		}
 		if (http_close == FALSE) {
-			connection = get_http_header_value(http_headers,"Connection: ");
+			connection = get_http_header_value(http_headers,"Connection:");
 			if (connection) {
 				if (strncasecmp(connection, "close", sizeof("close")-1) == 0) {
 					http_close = TRUE;
@@ -1046,7 +1046,7 @@ try_again:
 	} else {
 		http_close = TRUE;
 		if (use_proxy && !use_ssl) {
-			connection = get_http_header_value(http_headers,"Proxy-Connection: ");
+			connection = get_http_header_value(http_headers,"Proxy-Connection:");
 			if (connection) {
 				if (strncasecmp(connection, "Keep-Alive", sizeof("Keep-Alive")-1) == 0) {
 					http_close = FALSE;
@@ -1055,7 +1055,7 @@ try_again:
 			}
 		}
 		if (http_close == TRUE) {
-			connection = get_http_header_value(http_headers,"Connection: ");
+			connection = get_http_header_value(http_headers,"Connection:");
 			if (connection) {
 				if (strncasecmp(connection, "Keep-Alive", sizeof("Keep-Alive")-1) == 0) {
 					http_close = FALSE;
@@ -1092,7 +1092,7 @@ try_again:
 	if (http_status >= 300 && http_status < 400) {
 		char *loc;
 
-		if ((loc = get_http_header_value(http_headers,"Location: ")) != NULL) {
+		if ((loc = get_http_header_value(http_headers,"Location:")) != NULL) {
 			php_url *new_url  = php_url_parse(loc);
 
 			if (new_url != NULL) {
@@ -1138,7 +1138,7 @@ try_again:
 	} else if (http_status == 401) {
 		/* Digest authentication */
 		zval **digest, **login, **password;
-		char *auth = get_http_header_value(http_headers, "WWW-Authenticate: ");
+		char *auth = get_http_header_value(http_headers, "WWW-Authenticate:");
 
 		if (auth &&
 				strstr(auth, "Digest") == auth &&
@@ -1215,7 +1215,7 @@ try_again:
 	smart_str_free(&soap_headers_z);
 
 	/* Check and see if the server even sent a xml document */
-	content_type = get_http_header_value(http_headers,"Content-Type: ");
+	content_type = get_http_header_value(http_headers,"Content-Type:");
 	if (content_type) {
 		char *pos = NULL;
 		int cmplen;
@@ -1245,7 +1245,7 @@ try_again:
 	}
 
 	/* Decompress response */
-	content_encoding = get_http_header_value(http_headers,"Content-Encoding: ");
+	content_encoding = get_http_header_value(http_headers,"Content-Encoding:");
 	if (content_encoding) {
 		zval func;
 		zval retval;
@@ -1349,6 +1349,10 @@ static char *get_http_header_value(char *headers, char *type)
 
 			/* match */
 			tmp = pos + typelen;
+			/* skip the optional whitespace */
+			while (*tmp == ' ' || *tmp == '\t') {
+				tmp++;
+			}
 			eol = strchr(tmp, '\n');
 			if (eol == NULL) {
 				eol = headers + headerslen;
@@ -1375,18 +1379,18 @@ static int get_http_body(php_stream *stream, int close, char *headers,  char **r
 	int header_close = close, header_chunked = 0, header_length = 0, http_buf_size = 0;
 
 	if (!close) {
-		header = get_http_header_value(headers, "Connection: ");
+		header = get_http_header_value(headers, "Connection:");
 		if (header) {
 			if(!strncasecmp(header, "close", sizeof("close")-1)) header_close = 1;
 			efree(header);
 		}
 	}
-	header = get_http_header_value(headers, "Transfer-Encoding: ");
+	header = get_http_header_value(headers, "Transfer-Encoding:");
 	if (header) {
 		if(!strncasecmp(header, "chunked", sizeof("chunked")-1)) header_chunked = 1;
 		efree(header);
 	}
-	header = get_http_header_value(headers, "Content-Length: ");
+	header = get_http_header_value(headers, "Content-Length:");
 	if (header) {
 		header_length = atoi(header);
 		efree(header);
