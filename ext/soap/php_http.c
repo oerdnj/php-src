@@ -945,7 +945,7 @@ try_again:
 	   we shouldn't be changing urls so path dont
 	   matter too much
 	*/
-	cookie_itt = strstr(http_headers,"Set-Cookie: ");
+	cookie_itt = strstr(http_headers,"Set-Cookie:");
 	while (cookie_itt) {
 		char *end_pos, *cookie;
 		char *eqpos, *sempos;
@@ -959,6 +959,9 @@ try_again:
 			zend_hash_update(Z_OBJPROP_P(this_ptr), "_cookies", sizeof("_cookies"), &tmp_cookies, sizeof(zval *), (void **)&cookies);
 		}
 
+		while (*cookie_itt == ' ' || *cookie_itt == '\t') {
+			cookie_itt++;
+		}
 		end_pos = strstr(cookie_itt,"\r\n");
 		cookie = get_http_header_value(cookie_itt,"Set-Cookie:");
 
@@ -1018,7 +1021,7 @@ try_again:
 			smart_str_free(&name);
 		}
 
-		cookie_itt = strstr(cookie_itt + sizeof("Set-Cookie: "), "Set-Cookie: ");
+		cookie_itt = strstr(cookie_itt + sizeof("Set-Cookie:"), "Set-Cookie:");
 		efree(cookie);
 	}
 
