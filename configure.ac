@@ -668,6 +668,12 @@ if test "x$php_crypt_r" = "x1"; then
   PHP_CRYPT_R_STYLE
 fi
 
+php_aarch64_crc32="1"
+AC_CHECK_FUNCS([__crc32d __crc32w __crc32h __crc32b], [], [ php_aarch64_crc32="0" ])
+if test "x$php_aarch64_crc32" = "x1"; then
+  AC_DEFINE([HAVE_AARCH64_CRC32], [1], [Define when aarch64 CRC32 API is available.])
+fi
+
 dnl Check for asm goto support.
 AC_CACHE_CHECK([for asm goto], ac_cv__asm_goto,
 [AC_RUN_IFELSE([AC_LANG_SOURCE([[
